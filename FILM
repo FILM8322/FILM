@@ -1,0 +1,57 @@
+-- =========================================================
+-- Script Code Modifier & Executor Template
+-- =========================================================
+
+local CodeExecutor = {}
+
+-- ฟังก์ชันสำหรับแก้ไขโค้ด (Modify Code)
+function CodeExecutor.ModifyCode(originalCode, replacements)
+    local modifiedCode = originalCode
+    
+    -- วนลูปแทนที่คำหรือค่าต่างๆ ในโค้ดตามที่กำหนดไว้ใน Table
+    for target, replacement in pairs(replacements) do
+        modifiedCode = string.gsub(modifiedCode, target, replacement)
+    end
+    
+    return modifiedCode
+end
+
+-- ฟังก์ชันสำหรับรันโค้ด (Run Code)
+function CodeExecutor.RunCode(codeToRun)
+    -- ใช้ loadstring ในการแปลง String เป็น Function
+    local loadedFunc, err = loadstring(codeToRun)
+    
+    if loadedFunc then
+        print("[CodeExecutor] โค้ดผ่านการตรวจสอบ กำลังเริ่มรัน...")
+        local success, runError = pcall(loadedFunc)
+        if not success then
+            warn("[CodeExecutor] เกิดข้อผิดพลาดขณะรันโค้ด: " .. tostring(runError))
+        end
+    else
+        warn("[CodeExecutor] โค้ดมี Syntax Error ไม่สามารถโหลดได้: " .. tostring(err))
+    end
+end
+
+-- =========================================================
+-- ตัวอย่างการใช้งาน (Usage Example)
+-- =========================================================
+
+-- 1. โค้ดต้นฉบับที่ต้องการนำมาแก้
+local sourceCode = [[
+    local speed = {BASE_SPEED}
+    local player = game.Players.LocalPlayer
+    print("ตั้งค่าความเร็วของตัวละครเป็น: " .. tostring(speed))
+]]
+
+-- 2. กำหนดคำที่ต้องการเปลี่ยน (คำเดิม -> คำใหม่)
+local myChanges = {
+    ["{BASE_SPEED}"] = "50" -- แก้ไขค่าความเร็วจากตัวแปรหลอก ให้เป็น 50
+}
+
+-- 3. ทำการแก้ไขโค้ด
+local newCode = CodeExecutor.ModifyCode(sourceCode, myChanges)
+
+-- 4. สั่งรันโค้ดที่แก้แล้ว
+CodeExecutor.RunCode(newCode)
+
+return CodeExecutor
